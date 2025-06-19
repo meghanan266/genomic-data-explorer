@@ -1,5 +1,14 @@
 ##fileformat=VCFv4.2
-##source=test
+##source=ExampleVCF
 #CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
 1       123456  .       G       A       99      PASS    .
-2       234567  .       T       C       99      PASS    .
+1       223456  .       T       C       99      PASS    .
+2       333456  .       A       G       99      PASS    .
+2       343456  .       C       T       99      PASS    .
+3       443456  .       T       G       99      PASS    .
+4       553456  .       G       C       99      PASS    .
+5       663456  .       A       T       99      PASS    .
+6       773456  .       C       A       99      PASS    .
+X       883456  .       G       A       99      PASS    .
+Y       993456  .       T       G       99      PASS    .
+M       1003456 .       A       G       99      PASS    .
