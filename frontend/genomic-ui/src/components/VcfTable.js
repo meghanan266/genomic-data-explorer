@@ -14,18 +14,34 @@ const VcfTable = ({ data }) => {
     { field: "alt", headerName: "Alternate", width: 130 },
   ];
 
-  // Add row `id` as required by DataGrid
   const rows = data.map((row, index) => ({
     id: index + 1,
     ...row,
   }));
 
   return (
-    <Box sx={{ height: 500, width: "100%", mt: 4 }}>
+    <Box
+      sx={{
+        width: "100%",
+        mt: 4,
+        mb: 4,
+        border: "1px solid #ddd",
+        borderRadius: 1,
+        backgroundColor: "#fff",
+        padding: 2,
+        overflow: "visible", // fixes double scroll
+      }}
+    >
       <Typography variant="h6" sx={{ mb: 2 }}>
         VCF Variant Table (Search & Paginate)
       </Typography>
       <DataGrid
+        sx={{
+          "& .MuiDataGrid-virtualScroller": {
+            overflow: "visible",
+          },
+        }}
+        rowHeight={52}
         rows={rows}
         columns={columns}
         pageSize={5}

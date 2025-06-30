@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { Box, Typography } from "@mui/material";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -33,11 +34,14 @@ const VcfBarChart = ({ data }) => {
   };
 
   return (
-    <div style={{ maxWidth: 600, marginTop: 30 }}>
-      <h3>Variants by Chromosome</h3>
+    <Box sx={{ maxWidth: 700, mt: 4, mx: "auto" }}>
+      <Typography variant="h6" gutterBottom>
+        Variants by Chromosome
+      </Typography>
       <Bar data={chartData} />
-    </div>
+    </Box>
   );
+  
 };
 
 export default VcfBarChart;
