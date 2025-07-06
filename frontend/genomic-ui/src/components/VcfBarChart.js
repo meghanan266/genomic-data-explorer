@@ -28,20 +28,40 @@ const VcfBarChart = ({ data }) => {
         label: "Variant Count",
         data: Object.values(counts),
         backgroundColor: "rgba(63, 81, 181, 0.6)",
+        borderColor: "rgba(63, 81, 181, 1)",
+        borderWidth: 1,
         borderRadius: 4,
       },
     ],
   };
 
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0,
+        },
+      },
+    },
+  };
+
   return (
-    <Box sx={{ maxWidth: 700, mt: 4, mx: "auto" }}>
+    <Box sx={{ width: "100%", height: "100%" }}>
       <Typography variant="h6" gutterBottom>
-        Variants by Chromosome
+        📊 Variants by Chromosome
       </Typography>
-      <Bar data={chartData} />
+      <Box sx={{ height: 250, width: "100%" }}>
+        <Bar data={chartData} options={options} />
+      </Box>
     </Box>
   );
-  
 };
 
 export default VcfBarChart;

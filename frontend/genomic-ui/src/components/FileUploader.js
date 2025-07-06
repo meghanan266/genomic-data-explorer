@@ -2,9 +2,17 @@ import React, { useState } from "react";
 import axios from "axios";
 import FastaDisplay from "./FastaDisplay";
 import VcfTable from "./VcfTable";
-import { Button, Typography, Box, Alert } from "@mui/material";
 import VcfBarChart from "./VcfBarChart";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  Button,
+  Typography,
+  Box,
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 
 const FileUploader = ({ type }) => {
   const [file, setFile] = useState(null);
@@ -33,27 +41,23 @@ const FileUploader = ({ type }) => {
         formData
       );
       setParsedData(response.data);
-      setError(null); // Clear any previous errors
+      setError(null);
     } catch (error) {
-      console.error("Upload failed:", error);
       setError(
         error.response?.data?.error ||
           "Upload failed. Please check your file format and try again."
       );
-      setParsedData([]); // Clear data on error
+      setParsedData([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fixed classifyMutation function with proper null checks
   const classifyMutation = (ref, alt) => {
-    // Add null/undefined checks
     if (!ref || !alt || typeof ref !== "string" || typeof alt !== "string") {
       return "Unknown";
     }
 
-    // Handle empty strings or dots (VCF format)
     if (ref === "." || alt === "." || ref.length === 0 || alt.length === 0) {
       return "Unknown";
     }
@@ -64,11 +68,9 @@ const FileUploader = ({ type }) => {
     else return "Other";
   };
 
-  // Only filter VCF data - FASTA doesn't need this filtering
   const filteredData =
     type === "vcf"
       ? parsedData.filter((item) => {
-          // Ensure item exists and has required properties
           if (!item || typeof item !== "object") {
             return false;
           }
@@ -82,45 +84,38 @@ const FileUploader = ({ type }) => {
             : true;
           return matchesChrom && matchesMut;
         })
-      : parsedData; // For FASTA, just use the raw data
+      : parsedData;
 
-  // Get unique chromosomes safely - only for VCF data
   const getUniqueChromosomes = () => {
     if (!Array.isArray(parsedData) || type !== "vcf") return [];
 
     return [
       ...new Set(
-        parsedData
-          .filter((d) => d && d.chromosome) // Filter out invalid entries
-          .map((d) => d.chromosome)
+        parsedData.filter((d) => d && d.chromosome).map((d) => d.chromosome)
       ),
     ].sort();
   };
 
   return (
     <Box
-      className="upload-box"
       sx={{
         background: "#f9f9f9",
         padding: 3,
         borderRadius: 2,
         boxShadow: 2,
-        maxWidth: 800,
-        margin: "0 auto",
+        width: "100%",
       }}
     >
       <Typography variant="h5" sx={{ mb: 2 }}>
         Upload {type.toUpperCase()} File
       </Typography>
 
-      {/* Error Display */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
 
-      {/* Upload Section */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
         <input
           type="file"
@@ -138,18 +133,18 @@ const FileUploader = ({ type }) => {
         </Button>
       </Box>
 
-      {/* Loading indicator */}
       {loading && (
         <Box sx={{ textAlign: "center", my: 2 }}>
           <Typography>Processing file...</Typography>
         </Box>
       )}
 
-      {/* Filters + Output */}
+      {/* FASTA Display */}
       {type === "fasta" &&
         Array.isArray(parsedData) &&
         parsedData.length > 0 && <FastaDisplay data={parsedData} />}
 
+      {/* VCF Display with Filters */}
       {type === "vcf" && Array.isArray(parsedData) && parsedData.length > 0 && (
         <>
           <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
@@ -208,10 +203,76 @@ const FileUploader = ({ type }) => {
           </Box>
 
           {filteredData.length > 0 ? (
-            <>
+            <Box sx={{ mt: 2 }}>
+              {/* Chart and Stats Row */}
+              <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+                <Box sx={{ flex: 3 }}>
+                  <VcfBarChart data={filteredData} />
+                </Box>
+                <Box
+                  sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      p: 2,
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: 2,
+                      textAlign: "center",
+                    }}
+                  >
+                    <Typography variant="h4" color="primary">
+                      {filteredData.length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Total Variants
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 2,
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: 2,
+                      textAlign: "center",
+                    }}
+                  >
+                    <Typography variant="h4" color="primary">
+                      {new Set(filteredData.map((v) => v.chromosome)).size}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Chromosomes
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 2,
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: 2,
+                      textAlign: "center",
+                    }}
+                  >
+                    <Typography variant="h4" color="primary">
+                      {Math.round(
+                        filteredData.reduce(
+                          (sum, v) => sum + (v.quality || 0),
+                          0
+                        ) / filteredData.length
+                      )}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Avg Quality
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Full Width Table */}
               <VcfTable data={filteredData} />
-              <VcfBarChart data={filteredData} />
-            </>
+            </Box>
           ) : (
             <Typography sx={{ mt: 2, textAlign: "center" }}>
               No variants match the current filters.
@@ -220,7 +281,7 @@ const FileUploader = ({ type }) => {
         </>
       )}
 
-      {/* Show message when no data */}
+      {/* No Data Message */}
       {!loading &&
         Array.isArray(parsedData) &&
         parsedData.length === 0 &&
